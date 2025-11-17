@@ -1,9 +1,11 @@
-import { useState } from 'react';
-import { Play, X } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Play, X, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const Portfolio = () => {
   const [activeTab, setActiveTab] = useState<'photos' | 'reels' | 'cinematics'>('photos');
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  const [playingVideoId, setPlayingVideoId] = useState<number | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const photos = [
     'https://images.pexels.com/photos/1190297/pexels-photo-1190297.jpeg?auto=compress&cs=tinysrgb&w=800',
@@ -21,13 +23,23 @@ const Portfolio = () => {
   ];
 
   const reels = [
-    { id: 1, thumbnail: 'https://images.pexels.com/photos/3062541/pexels-photo-3062541.jpeg?auto=compress&cs=tinysrgb&w=600' },
-    { id: 2, thumbnail: 'https://images.pexels.com/photos/1181263/pexels-photo-1181263.jpeg?auto=compress&cs=tinysrgb&w=600' },
-    { id: 3, thumbnail: 'https://images.pexels.com/photos/2531608/pexels-photo-2531608.jpeg?auto=compress&cs=tinysrgb&w=600' },
-    { id: 4, thumbnail: 'https://images.pexels.com/photos/3944091/pexels-photo-3944091.jpeg?auto=compress&cs=tinysrgb&w=600' },
-    { id: 5, thumbnail: 'https://images.pexels.com/photos/3760607/pexels-photo-3760607.jpeg?auto=compress&cs=tinysrgb&w=600' },
-    { id: 6, thumbnail: 'https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?auto=compress&cs=tinysrgb&w=600' },
+    { id: 1, video: 'https://assets.mixkit.co/videos/preview/mixkit-tree-with-snow-falling-638-small.mp4', thumbnail: 'https://images.pexels.com/photos/3062541/pexels-photo-3062541.jpeg?auto=compress&cs=tinysrgb&w=600', title: 'Winter Vibes' },
+    { id: 2, video: 'https://assets.mixkit.co/videos/preview/mixkit-aerial-view-of-green-field-2716-small.mp4', thumbnail: 'https://images.pexels.com/photos/1181263/pexels-photo-1181263.jpeg?auto=compress&cs=tinysrgb&w=600', title: 'Nature\'s Beauty' },
+    { id: 3, video: 'https://assets.mixkit.co/videos/preview/mixkit-sunset-at-a-pier-2452-small.mp4', thumbnail: 'https://images.pexels.com/photos/2531608/pexels-photo-2531608.jpeg?auto=compress&cs=tinysrgb&w=600', title: 'Golden Hour' },
+    { id: 4, video: 'https://assets.mixkit.co/videos/preview/mixkit-city-lights-at-night-2628-small.mp4', thumbnail: 'https://images.pexels.com/photos/3944091/pexels-photo-3944091.jpeg?auto=compress&cs=tinysrgb&w=600', title: 'Urban Lights' },
+    { id: 5, video: 'https://assets.mixkit.co/videos/preview/mixkit-colorful-abstract-shapes-5614-small.mp4', thumbnail: 'https://images.pexels.com/photos/3760607/pexels-photo-3760607.jpeg?auto=compress&cs=tinysrgb&w=600', title: 'Abstract Motion' },
+    { id: 6, video: 'https://assets.mixkit.co/videos/preview/mixkit-people-dancing-in-a-nightclub-1881-small.mp4', thumbnail: 'https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?auto=compress&cs=tinysrgb&w=600', title: 'Event Moments' },
   ];
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollContainerRef.current) {
+      const scrollAmount = 400;
+      scrollContainerRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   const cinematics = [
     { id: 1, thumbnail: 'https://images.pexels.com/photos/1983037/pexels-photo-1983037.jpeg?auto=compress&cs=tinysrgb&w=1200', title: 'Brand Campaign' },
@@ -86,22 +98,43 @@ const Portfolio = () => {
         )}
 
         {activeTab === 'reels' && (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-            {reels.map((reel) => (
-              <div
-                key={reel.id}
-                className="group relative aspect-[9/16] overflow-hidden rounded-lg cursor-pointer"
-              >
-                <img
-                  src={reel.thumbnail}
-                  alt={`Reel ${reel.id}`}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
-                  <Play className="w-16 h-16 text-[#FF6A00]" fill="currentColor" />
+          <div className="relative">
+            <div
+              ref={scrollContainerRef}
+              className="flex gap-6 overflow-x-auto scroll-smooth pb-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              {reels.map((reel) => (
+                <div
+                  key={reel.id}
+                  className="flex-shrink-0 group relative w-80 aspect-[9/16] overflow-hidden rounded-lg cursor-pointer"
+                  onClick={() => setPlayingVideoId(reel.id)}
+                >
+                  <img
+                    src={reel.thumbnail}
+                    alt={reel.title}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col items-center justify-center">
+                    <Play className="w-20 h-20 text-[#FF6A00] mb-4" fill="currentColor" />
+                    <p className="text-white font-semibold text-lg">{reel.title}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+
+            <button
+              onClick={() => scroll('left')}
+              className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-6 z-10 bg-[#FF6A00] hover:bg-[#FF8A3D] text-white rounded-full p-3 transition-all duration-300 hover:scale-110 shadow-lg"
+            >
+              <ChevronLeft size={24} />
+            </button>
+
+            <button
+              onClick={() => scroll('right')}
+              className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-6 z-10 bg-[#FF6A00] hover:bg-[#FF8A3D] text-white rounded-full p-3 transition-all duration-300 hover:scale-110 shadow-lg"
+            >
+              <ChevronRight size={24} />
+            </button>
           </div>
         )}
 
@@ -144,6 +177,30 @@ const Portfolio = () => {
             alt="Lightbox"
             className="max-w-full max-h-full object-contain"
           />
+        </div>
+      )}
+
+      {playingVideoId && (
+        <div
+          className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-6"
+          onClick={() => setPlayingVideoId(null)}
+        >
+          <button
+            className="absolute top-8 right-8 text-white hover:text-[#FF6A00] transition-colors"
+            onClick={() => setPlayingVideoId(null)}
+          >
+            <X size={40} />
+          </button>
+          <div className="w-full max-w-2xl aspect-[9/16] rounded-lg overflow-hidden">
+            <video
+              autoPlay
+              controls
+              className="w-full h-full object-cover"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <source src={reels.find(r => r.id === playingVideoId)?.video} type="video/mp4" />
+            </video>
+          </div>
         </div>
       )}
     </section>
