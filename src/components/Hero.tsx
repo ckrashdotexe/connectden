@@ -31,10 +31,24 @@ const Hero = () => {
       <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70" />
 
       <div className="relative h-full flex flex-col items-center justify-center px-6 text-center">
+        <div className={`absolute -bottom-20 left-1/2 transform -translate-x-1/2 w-full max-w-2xl h-96 rounded-lg overflow-hidden opacity-40 blur-sm transform transition-all duration-1500 ${
+          isVisible ? 'scale-100' : 'scale-95'
+        }`}>
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover"
+          >
+            <source src="https://assets.mixkit.co/videos/preview/mixkit-film-production-with-equipment-and-crew-47155-large.mp4" type="video/mp4" />
+          </video>
+        </div>
+
         <div className={`transform transition-all duration-1500 ${
           isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
         }`}>
-          <h1 className="text-6xl md:text-8xl font-bold text-white mb-6 tracking-wider">
+          <h1 className="text-6xl md:text-8xl font-bold text-white mb-6 tracking-wider drop-shadow-2xl">
             CONNECTDEN <span className="text-[#FF6A00]">FILMS</span>
           </h1>
         </div>
